@@ -6,3 +6,5 @@ Kryssa för grundtonen och en annan ton, och justera intonationen på den andra 
 Alla toners intervall utgår från grundtonen, så om två toner spelas utan grundtonen, är det inte säkert att det blir ett rent intervall, även om deras sliders står på noll.
 
 Grundtonerna beräknas utifrån en liksvävande skala där A=440 Hz.
+
+https://olson2000.github.io/renatonen/
