@@ -1,132 +1,172 @@
 "use strict";
 
+// Olof Lundqvist, 2024
+// Ett litet program för att spela upp toner och justera intonationen.
+
 const frekvA1 = 440;
 const frekvEttstrukna = [];
-let frekvFaktor = [];
-let nuvGrundton = 0;
-let nuvOktav = 1;
-let frekvGrundton = 0;
-let grundtonSpelar = false;
-let grundtonCheck = false;
-let oscList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let oscList = new Array(12).fill(0); //[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 let oscType = "triangle";
-let aktivTon = [];
-let tonNamn = [];
-let extraTonInt = [];
-let extraTonBar = [];
-let extraTonText = [];
-let extraTonCheck = [];
-let kvintIntonation = 0;
+let spelaCheck = [];
+let tonSlide = [];
+let tonSlideTxt = [];
+let tonFrekvTxt = [];
+let tonFrekv = new Array(12).fill(0);
+let tonInt = new Array(12).fill(0);
+let oktavSlide = null;
+const intervallNamn = ["Grundton", "L2", "S2", "L3", "S3", "R4", "F5", "R5", "L6", "S6", "L7", "S7"]
+const tonNamn = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"]
+const frekvFaktor = [1, 17 / 16, 9 / 8, 19 / 16, 5 / 4, 4 / 3, 45 / 32, 3 / 2, 8 / 5, 5 / 3, 7 / 4, 15 / 8];
 
-//10: A =440 * Math.pow(2, 0/12)
+//ton 10: A = 440 * Math.pow(2, 0/12)
 //Beräkna frekvenserna i ettstrukna oktaven utifrån a1 (som har nr 10)
 for (let i = 0; i < 12; i++) {
     frekvEttstrukna[i] = frekvA1 * Math.pow(2, (i - 9) / 12);
 }
-/* 261.6255653005986
-> 277.1826309768721
-> 293.6647679174076
-> 311.12698372208087
-> 329.6275569128699
-> 349.2282314330039
-> 369.9944227116344
-> 391.99543598174927
-> 415.3046975799451
-> 440
-> 466.1637615180899
-> 493.8833012561241
-*/
 
-frekvFaktor = [1, 17 / 16, 9 / 8, 19 / 16, 5 / 4, 4 / 3, 45 / 32, 3 / 2, 8 / 5, 5 / 3, 7 / 4, 15 / 8];
+const tystBtn = document.querySelector(".btnTyst");
 
-tonNamn = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"]
+skapaTonTabell();
 
-for (let i = 0; i < 12; i++) {
-    aktivTon[i] = false;
-}
-
-const playBtn = document.querySelector(".btnSpela");
-
-//const grundtonBar = document.querySelector("input[name='grundton']");
-
-const oktavBar = document.getElementById("oktav");
-const grundtonBar = document.getElementById("grundton");
-//const testen = document.getElementById("textis");
-const grundtonText = document.getElementById("grundtonp");
-grundtonCheck = document.getElementById("grundtonCheck");
-extraTonBar[1] = document.getElementById("lSekundInt");
-extraTonText[1] = document.getElementById("lSekundp");
-extraTonCheck[1] = document.getElementById("lSekundCheck");
-extraTonBar[2] = document.getElementById("sSekundInt");
-extraTonText[2] = document.getElementById("sSekundp");
-extraTonCheck[2] = document.getElementById("sSekundCheck");
-extraTonBar[3] = document.getElementById("lTersInt");
-extraTonText[3] = document.getElementById("lTersp");
-extraTonCheck[3] = document.getElementById("lTersCheck");
-extraTonBar[4] = document.getElementById("sTersInt");
-extraTonText[4] = document.getElementById("sTersp");
-extraTonCheck[4] = document.getElementById("sTersCheck");
-extraTonBar[5] = document.getElementById("kvartInt");
-extraTonText[5] = document.getElementById("kvartp");
-extraTonCheck[5] = document.getElementById("kvartCheck");
-extraTonBar[6] = document.getElementById("tritInt");
-extraTonText[6] = document.getElementById("tritp");
-extraTonCheck[6] = document.getElementById("tritCheck");
-extraTonBar[7] = document.getElementById("kvintInt");
-extraTonText[7] = document.getElementById("kvintp");
-extraTonCheck[7] = document.getElementById("kvintCheck");
-
-
-nuvOktav = oktavBar.value;
-nuvGrundton = grundtonBar.value;
-
-for (let i = 1; i < 8; i++) {
-    extraTonInt[i] = Math.pow(2, extraTonBar[i].value / 1200);
-    extraTonText[i].textContent = extraTonBar[i].value;
-}
-
-frekvGrundton = Math.pow(2, nuvOktav) * frekvEttstrukna[nuvGrundton];
-
-grundtonText.textContent = tonNamn[nuvGrundton];
-
-oktavBar.addEventListener("change", function () {
-    nuvOktav = oktavBar.value;
-    frekvGrundton = Math.pow(2, nuvOktav) * frekvEttstrukna[nuvGrundton];
-    uppdateraFrekvens();
-});
-
-grundtonBar.addEventListener("change", function () {
-    nuvGrundton = grundtonBar.value;
-    frekvGrundton = Math.pow(2, nuvOktav) * frekvEttstrukna[nuvGrundton];
-    /*oscList[0].frequency.value = frekvGrundton;
-    oscList[7].frequency.value = kvintIntonation * frekvFaktor[7] * frekvGrundton;*/
-    uppdateraFrekvens();
-    grundtonText.textContent = tonNamn[nuvGrundton];
-});
-
-for (let i = 1; i < 8; i++) {
-    extraTonBar[i].addEventListener("change", function () {
-        extraTonInt[i] = Math.pow(2, extraTonBar[i].value / 1200);
-        if (oscList[i] != 0) {
-            oscList[i].frequency.value = extraTonInt[i] * frekvFaktor[i] * frekvGrundton;
-        }
-        extraTonText[i].textContent = extraTonBar[i].value;
-    });
-}
+andraAllaFrekvenser();
 
 // create web audio api context
 //const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const audioCtx = new AudioContext;
 
-function uppdateraFrekvens() {
-    oscList[0].frequency.value = frekvGrundton;
-    for (let i = 1; i < 8; i++) {
-        extraTonInt[i] = Math.pow(2, extraTonBar[i].value / 1200);
-        if (oscList[i] != 0) {
-            oscList[i].frequency.value = extraTonInt[i] * frekvFaktor[i] * frekvGrundton;
+//------ LISTENERS ----------
+oktavSlide.addEventListener("change", function () {
+    andraAllaFrekvenser();
+});
+
+tonSlide[0].addEventListener("change", function () {
+    andraAllaFrekvenser();
+});
+
+for (let i = 1; i < tonSlide.length; i++) {
+    tonSlide[i].addEventListener("change", function () {
+        andraFrekvens(i);
+    });
+}
+
+for (let i = 0; i < tonFrekv.length; i++) {
+    spelaCheck[i].addEventListener("change", function () {
+        if (spelaCheck[i].checked) {
+            oscList[i] = playTone(tonFrekv[i]);
         }
-        extraTonText[i].textContent = extraTonBar[i].value;
+        else {
+            if (oscList[i] != 0) {
+                oscList[i].stop();
+            }
+        }
+    });
+}
+
+tystBtn.addEventListener("click", tystaAllt);
+//--------------------------
+
+function andraAllaFrekvenser() {
+    for (let i = 0; i < tonFrekv.length; i++) {
+        andraFrekvens(i);
     }
+}
+
+function andraFrekvens(tonNr) {
+    if (tonNr > 0) {
+        tonInt[tonNr] = Math.pow(2, tonSlide[tonNr].value / 1200);
+        tonFrekv[tonNr] = tonInt[tonNr] * frekvFaktor[tonNr] * tonFrekv[0];
+        tonSlideTxt[tonNr].textContent = tonSlide[tonNr].value;
+    }
+    else {
+        //Grundtonen
+        tonFrekv[tonNr] = Math.pow(2, oktavSlide.value) * frekvEttstrukna[tonSlide[tonNr].value];
+        tonSlideTxt[tonNr].textContent = tonNamn[tonSlide[tonNr].value];
+    }
+    tonFrekvTxt[tonNr].textContent = tonFrekv[tonNr] + " Hz";
+    andraOscFrekvens(tonNr);
+
+}
+
+function andraOscFrekvens(oscNr) {
+    if (spelaCheck[oscNr].checked && oscList[oscNr] != 0) {
+        oscList[oscNr].frequency.value = tonFrekv[oscNr];
+    }
+}
+
+function skapaTonTabell() {
+    const tonTab = document.getElementById("tonTab");
+    for (let i = 11; i >= 0; i--) {
+        const row = document.createElement("tr");
+
+        const checkCell = document.createElement("td");
+        spelaCheck[i] = document.createElement("input");
+        spelaCheck[i].setAttribute("type", "checkbox");
+        checkCell.appendChild(spelaCheck[i]);
+        row.appendChild(checkCell);
+
+        const namnCell = document.createElement("td");
+        const namnCellText = document.createTextNode(intervallNamn[i]);
+        namnCell.appendChild(namnCellText);
+        row.appendChild(namnCell);
+
+        const intonCell = document.createElement("td");
+        tonSlide[i] = document.createElement("input");
+        tonSlide[i].setAttribute("type", "range");
+
+        if (i == 0) {
+            tonSlide[i].min = "0";
+            tonSlide[i].max = "11";
+            tonSlide[i].step = "1";
+            tonSlide[i].value = "9";
+        }
+        else {
+            tonSlide[i].min = "-100";
+            tonSlide[i].max = "100";
+            tonSlide[i].step = "1";
+            tonSlide[i].value = "0";
+            //intonSlide[i].list = "centsteg";
+        }
+
+        intonCell.appendChild(tonSlide[i]);
+        row.appendChild(intonCell);
+
+        const slideVardeCell = document.createElement("td");
+        if (i == 0) {
+            tonSlideTxt[i] = document.createTextNode(tonNamn[tonSlide[i].value]);
+        }
+        else {
+            tonSlideTxt[i] = document.createTextNode(tonSlide[i].value);
+        }
+        slideVardeCell.appendChild(tonSlideTxt[i]);
+        row.appendChild(slideVardeCell);
+
+        const frekvCell = document.createElement("td");
+        tonFrekvTxt[i] = document.createTextNode(tonFrekv[i] + " Hz");
+        frekvCell.appendChild(tonFrekvTxt[i]);
+        row.appendChild(frekvCell);
+
+        tonTab.appendChild(row);
+    }
+    const row = document.createElement("tr");
+    const checkCell = document.createElement("td");
+    row.appendChild(checkCell);
+
+    const namnCell = document.createElement("td");
+    const namnCellText = document.createTextNode("Oktav");
+    namnCell.appendChild(namnCellText);
+    row.appendChild(namnCell);
+
+    const oktavSlideCell = document.createElement("td");
+    oktavSlide = document.createElement("input");
+    oktavSlide.setAttribute("type", "range");
+    oktavSlide.min = -3;
+    oktavSlide.max = 3;
+    oktavSlide.step = 1;
+    oktavSlide.value = 0;
+    oktavSlideCell.appendChild(oktavSlide);
+    row.appendChild(oktavSlideCell);
+
+    tonTab.appendChild(row);
 }
 
 function playTone(freq) {
@@ -139,31 +179,11 @@ function playTone(freq) {
     return osc;
 }
 
-playBtn.addEventListener("click", () => {
-    //Om stoppad, spela
-    if (!grundtonSpelar) {
-        if (grundtonCheck.checked) {
-            oscList[0] = playTone(frekvGrundton);
-            //aktivTon[0] = true;
+function tystaAllt() {
+    for (let i = 0; i < tonFrekv.length; i++) {
+        if (oscList[i] != 0) {
+            oscList[i].stop();
+            spelaCheck[i].checked = false;
         }
-
-        for (let i = 1; i < 8; i++) {
-            if (extraTonCheck[i].checked) {
-                oscList[i] = playTone(extraTonInt[i] * frekvFaktor[i] * frekvGrundton);
-            }
-        }
-        playBtn.textContent = "Stoppa";
-        grundtonSpelar = true;
     }
-
-    else {
-        for (let i = 0; i < 8; i++) {
-            if (oscList[i] != 0) {
-                oscList[i].stop();
-            }
-        }
-
-        playBtn.textContent = "Spela";
-        grundtonSpelar = false;
-    }
-});
+}
