@@ -108,7 +108,7 @@ function andraFrekvens(tonNr) {
     else {
         //Grundtonen
         //tonFrekv[tonNr] = Math.pow(2, oktavSlide.value) * frekvEttstrukna[tonSlide[tonNr].value];
-        tonFrekv[tonNr] = Math.pow(2, oktavSlide.value) * getLikFrekvens(tonSlide[tonNr].value);
+        tonFrekv[tonNr] = Math.pow(2, oktavSlide.value) * getLikFrekvens(Number(tonSlide[tonNr].value));
         tonSlideTxt[tonNr].textContent = tonNamn[tonSlide[tonNr].value];
         tonLikFrekv[0] = tonFrekv[0];
     }
