@@ -112,7 +112,7 @@ function andraFrekvens(tonNr) {
         tonSlideTxt[tonNr].textContent = tonNamn[tonSlide[tonNr].value];
         tonLikFrekv[0] = tonFrekv[0];
     }
-    tonFrekvTxt[tonNr].textContent = tonFrekv[tonNr].setPrecision(5).toString() + " Hz";
+    tonFrekvTxt[tonNr].textContent = tonFrekv[tonNr].setPrecision(5) + " Hz";
     andraOscFrekvens(tonNr);
 
 }
