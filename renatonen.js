@@ -112,7 +112,7 @@ function andraFrekvens(tonNr) {
         tonSlideTxt[tonNr].textContent = tonNamn[tonSlide[tonNr].value];
         tonLikFrekv[0] = tonFrekv[0];
     }
-    tonFrekvTxt[tonNr].textContent = tonFrekv[tonNr].setPrecision(5) + " Hz";
+    tonFrekvTxt[tonNr].textContent = tonFrekv[tonNr] + " Hz";
     andraOscFrekvens(tonNr);
 
 }
@@ -188,13 +188,13 @@ function skapaTonTabell() {
         row.appendChild(slideVardeCell);
 
         const frekvCell = document.createElement("td");
-        tonFrekvTxt[i] = document.createTextNode(tonFrekv[i].toPrecision(5) + " Hz");
+        tonFrekvTxt[i] = document.createTextNode(tonFrekv[i] + " Hz");
         frekvCell.appendChild(tonFrekvTxt[i]);
         row.appendChild(frekvCell);
 
         if (i > 0) {
             const likFrekvCell = document.createElement("td");
-            tonLikTxt[i] = document.createTextNode(tonLikFrekv[i].toPrecision(5) + " Hz");
+            tonLikTxt[i] = document.createTextNode(tonLikFrekv[i] + " Hz");
             likFrekvCell.appendChild(tonLikTxt[i]);
             row.appendChild(likFrekvCell);
         }
