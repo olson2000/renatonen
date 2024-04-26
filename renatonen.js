@@ -188,13 +188,13 @@ function skapaTonTabell() {
         row.appendChild(slideVardeCell);
 
         const frekvCell = document.createElement("td");
-        tonFrekvTxt[i] = document.createTextNode(tonFrekv[i] + " Hz");
+        tonFrekvTxt[i] = document.createTextNode(tonFrekv[i].toPrecision(5) + " Hz");
         frekvCell.appendChild(tonFrekvTxt[i]);
         row.appendChild(frekvCell);
 
         if (i > 0) {
             const likFrekvCell = document.createElement("td");
-            tonLikTxt[i] = document.createTextNode(tonLikFrekv[i] + " Hz");
+            tonLikTxt[i] = document.createTextNode(tonLikFrekv[i].toPrecision(5) + " Hz");
             likFrekvCell.appendChild(tonLikTxt[i]);
             row.appendChild(likFrekvCell);
         }
